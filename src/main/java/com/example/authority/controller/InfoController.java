@@ -5,11 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/account")
-public class AccountController {
-
+@RequestMapping("info")
+public class InfoController {
     @GetMapping
-    public String userInfo() {
-        return "account返回的数据";
+    public String info() {
+        return "info返回的数据";
     }
 }

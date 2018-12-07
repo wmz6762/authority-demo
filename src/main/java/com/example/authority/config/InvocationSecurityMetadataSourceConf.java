@@ -1,16 +1,12 @@
 package com.example.authority.config;
 
-
-import org.assertj.core.util.Maps;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Component
@@ -34,7 +30,7 @@ public class InvocationSecurityMetadataSourceConf implements FilterInvocationSec
             if (antPathMatcher.match(url, requestUrl))
                 return SecurityConfig.createList(map.get(url));
         }
-        return null;
+        return SecurityConfig.createList(new String[]{"none"});
     }
 
     @Override
