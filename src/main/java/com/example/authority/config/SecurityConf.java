@@ -1,11 +1,13 @@
 package com.example.authority.config;
 
 import com.example.authority.exception.AuthenticationAccessDeniedHandler;
+import com.example.authority.filter.KaptchaAuthenticationFilter;
 import com.example.authority.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -22,6 +24,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsUtils;
 
 import javax.servlet.ServletException;
@@ -48,6 +51,12 @@ public class SecurityConf extends WebSecurityConfigurerAdapter implements Authen
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        KaptchaAuthenticationFilter kaptchaAuthenticationFilter=new KaptchaAuthenticationFilter();
+        kaptchaAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        kaptchaAuthenticationFilter.setAuthenticationFailureHandler(this);
+        kaptchaAuthenticationFilter.setAuthenticationSuccessHandler(this);
+
         http.authorizeRequests().withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
             @Override
             public <O extends FilterSecurityInterceptor> O postProcess(O o) {
@@ -56,8 +65,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter implements Authen
                 return o;
             }
         })
-                .antMatchers("/login", "/403", "/500").permitAll()
-                .and()
+
+                .antMatchers("/login", "/403", "/500","/captcha.jpg").permitAll()
+                .and().addFilterBefore(kaptchaAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests().anyRequest().authenticated()
                 .and()
                 .formLogin().loginPage("/login")
@@ -68,7 +78,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter implements Authen
                 .and()
                 .exceptionHandling().authenticationEntryPoint(this)
                 .and().csrf().disable()
-                .exceptionHandling().accessDeniedHandler(authenticationAccessDeniedHandler);
+                .exceptionHandling().accessDeniedHandler(authenticationAccessDeniedHandler)
+
         ;
 
     }
@@ -114,4 +125,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter implements Authen
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
     }
+
+
 }

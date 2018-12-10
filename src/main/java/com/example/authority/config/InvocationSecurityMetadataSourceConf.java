@@ -30,7 +30,7 @@ public class InvocationSecurityMetadataSourceConf implements FilterInvocationSec
             if (antPathMatcher.match(url, requestUrl))
                 return SecurityConfig.createList(map.get(url));
         }
-        return SecurityConfig.createList(new String[]{"none"});
+        return null;
     }
 
     @Override

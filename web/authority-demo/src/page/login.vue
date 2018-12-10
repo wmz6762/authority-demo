@@ -15,6 +15,13 @@
         </td>
       </tr>
       <tr>
+        <td>imageCode</td>
+        <td>
+          <img :src="captchaPath" @click="getCaptcha()">
+        </td>
+      </tr>
+
+      <tr>
         <td colspan="2">
           <input type="submit" value="login" @click="login">
         </td>
@@ -24,17 +31,19 @@
 </template>
 
 <script>
+import { getUUID } from "@/util/index";
 export default {
   name: "index",
   data() {
     return {
       username: "admin",
-      password: "123"
+      password: "123",
+      captchaPath: "",
+      uuid:''
     };
   },
   methods: {
     login() {
-      debugger;
       this.$http({
         url: this.$http.adornUrl("/login"),
         method: "post",
@@ -46,7 +55,14 @@ export default {
         if (res.data === "ok") this.$router.replace({ name: "home" });
         else alert(res.data);
       });
+    },
+    getCaptcha() {
+      this.uuid=getUUID();
+      this.captchaPath = this.$http.adornUrl(`/captcha.jpg?uuid=${this.uuid}`)
     }
+  },
+  created() {
+    this.getCaptcha();
   }
 };
 </script>
