@@ -15,9 +15,11 @@
         </td>
       </tr>
       <tr>
-        <td>imageCode</td>
         <td>
           <img :src="captchaPath" @click="getCaptcha()">
+        </td>
+        <td>
+          <input type="text" v-model="imageCode">
         </td>
       </tr>
 
@@ -39,7 +41,8 @@ export default {
       username: "admin",
       password: "123",
       captchaPath: "",
-      uuid:''
+      uuid:'',
+      imageCode:''
     };
   },
   methods: {
@@ -49,7 +52,8 @@ export default {
         method: "post",
         params: this.$http.adornParams({
           username: this.username,
-          password: this.password
+          password: this.password,
+          imageCode:this.imageCode
         })
       }).then(res => {
         if (res.data === "ok") this.$router.replace({ name: "home" });

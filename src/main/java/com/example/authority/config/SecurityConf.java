@@ -1,6 +1,7 @@
 package com.example.authority.config;
 
 import com.example.authority.exception.AuthenticationAccessDeniedHandler;
+import com.example.authority.exception.ValidateCodeException;
 import com.example.authority.filter.KaptchaAuthenticationFilter;
 import com.example.authority.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,15 +48,16 @@ public class SecurityConf extends WebSecurityConfigurerAdapter implements Authen
     AuthenticationAccessDeniedHandler authenticationAccessDeniedHandler;
 
     @Autowired
+    KaptchaAuthenticationFilter kaptchaAuthenticationFilter;
+
+    @Autowired
     UserService userService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        KaptchaAuthenticationFilter kaptchaAuthenticationFilter=new KaptchaAuthenticationFilter();
-        kaptchaAuthenticationFilter.setAuthenticationManager(authenticationManager());
-        kaptchaAuthenticationFilter.setAuthenticationFailureHandler(this);
-        kaptchaAuthenticationFilter.setAuthenticationSuccessHandler(this);
+
+
 
         http.authorizeRequests().withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
             @Override
@@ -115,6 +117,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter implements Authen
             message = "账户名或者密码输入错误!";
         else if (e instanceof LockedException)
             message = "账户被锁定";
+        else if( e instanceof ValidateCodeException)
+            message = e.getMessage();
         else
             message = "登录失败";
         httpServletResponse.setStatus(HttpServletResponse.SC_OK);
